@@ -30,15 +30,40 @@ function App() {
 
   const [modalDetail, setModalDetail]= useState (false);
 
-  
-
-
-
   const selectPonto = (ponto, chose) =>{
     setPontoSelected(ponto);
         (chose === "Edit") ?
         joinExitModalEdit() : joinExitModalDelete();
   }
+
+
+
+  const joinExitModalDetail =()=>{
+    setModalDetail(!modalDetail);
+  }
+
+  const joinExitModalDelete =()=>{
+    setModalDelete(!modalDelete);
+  }
+
+  const joinExitModalPost=()=>{
+    setModalPost(!modalPost);
+  }
+
+  const joinExitModalEdit=()=>{
+    setModalEdit(!modalEdit);
+  }
+
+  const HandleChange = e=>{
+    const {name,value} = e.target;
+    setPontoSelected({
+      ...pontoSelect,[name]:value
+    });
+    console.log(setPontoSelected);
+  }
+
+
+ 
 
 
 
@@ -54,7 +79,28 @@ function App() {
 
   return (
     <div className="App">
-      
+        <body>
+            <h1 className='titulo'>PONTOS TURISTICOS DO BRASIL</h1>
+
+              <div className="pesquisa">
+                <input type="search" placeholder='Pesquisa por Nome, Cidade ou Estado...' onChange={e => setQuery(e.target.value)}/>
+                  <div className='sub-titulo'>
+                    <button className='btn btn-success' onClick={()=>joinExitModalPost()}> Incluir Novo </button>
+                  </div>
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              </div>
+
+        </body>
+
+
     </div>
   );
 }
