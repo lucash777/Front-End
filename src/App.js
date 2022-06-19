@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/booststrap.min.css';
 import axios from 'axios';
@@ -7,7 +7,11 @@ import {Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
 
 function App() {
   
-  const basUrl="https://localhost:44328/api/pontos";
+  const baseUrl="https://localhost:44328/api/pontos";
+
+  useEffect(()=>{
+    pedidoGet();
+  })
 
   const [data, setData]=useState([]);
 
@@ -54,13 +58,45 @@ function App() {
     setModalEdit(!modalEdit);
   }
 
-  const HandleChange = e=>{
+  const handleChange = e=>{
     const {name,value} = e.target;
     setPontoSelected({
       ...pontoSelect,[name]:value
     });
     console.log(setPontoSelected);
   }
+
+  const pedidoGet=async()=>{
+    await axios.get(baseUrl)
+      .then(response => {
+        setData(reponse.data);
+      }).catch(error=>{
+        console.log(error);
+      })
+  }
+
+  const pedidoPost=async()=>{
+    delete setPontoSelected.id;
+    await axios.post(baseUrl, setPontoSelected)
+      .then(response => {
+        setData(data.concat(reponse.data));
+        joinExitModalPost();
+      }).catch(error=>{
+        console.log(error);
+      })
+  }
+
+  const pedidoDelete=async()=>{
+    await axios.delete(baseUrl+"/"+pontoSelected.id)
+    .then (response=>{
+      setData(data.filter(ponto=ponto.id));
+      joinExitModalDelete();
+    }).catch(error=>{
+      console.log(error);
+    })
+  }
+
+
 
 
  
@@ -99,6 +135,88 @@ function App() {
               </div>
 
         </body>
+
+
+
+        <Modal isOpen={modalPost}>
+          <ModalHeader>CADASTRAR NOVO PONTO TURISTICO</ModalHeader>
+
+            <ModalBody>
+              <div className="form-group">
+                  <label>Nome:</label>
+                    <br/>
+                    <input type="text" className="form-control" name="nome" onChange={handleChange}/>
+                    <br/>
+                  <label>Cidade:</label>                           
+                    <input type="text" className="form-control" name="cidade" onChange={handleChange}/>
+                    <br/>
+                  <label>Estado:</label>
+                    <br/>
+                    <input size="20" type="text" className="form-control" name="estado" maxlength="2" onChange={handleChange}/>
+                    <br/>
+                   <label>Rua:</label>
+                    <br/>
+                    <input type="text" className="form-control" name="ruareferencia" placeholder="Ex. Rua Euclides 234" onChange={handleChange}/>
+                    <br/>   
+                  <label>Descrição:</label>
+                    <br/>
+                    <textarea type="text" className="form-control" name="descricao" maxlength="100" onChange={handleChange}/>
+                    <br/>                     
+              </div>
+                
+                </ModalBody>    
+
+              <ModalFooter>
+              <button className="btn btn-primary" onClick={()=>pedidoPost()}>incluir</button> {" "}
+              <button className="btn btn-danger" onClick={()=>joinExitModalPost()}>Sair</button>
+          </ModalFooter>
+
+        </Modal>
+
+        <Modal>
+          <ModalHeader>
+
+          </ModalHeader>
+          
+            <ModalBody>
+              
+            </ModalBody>
+          
+          <ModalFooter>
+
+          </ModalFooter>
+        </Modal>
+
+
+        <Modal>
+          <ModalHeader>
+
+          </ModalHeader>
+          
+            <ModalBody>
+              
+            </ModalBody>
+          
+          <ModalFooter>
+
+          </ModalFooter>
+        </Modal>
+
+
+        <Modal>
+          <ModalHeader>
+
+          </ModalHeader>
+          
+            <ModalBody>
+              
+            </ModalBody>
+          
+          <ModalFooter>
+
+          </ModalFooter>
+        </Modal>
+
 
 
     </div>
