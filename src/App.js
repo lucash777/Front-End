@@ -131,12 +131,12 @@ function App() {
           <h1 className='titulo'>PONTOS TURISTICOS DO BRASIL</h1>
 
             <div className="pesquisa">
-              <input type="search" placeholder='Pesquisa por Nome, Cidade ou Estado...' onChange={e => setQuery(e.target.value)}/>
+              <input type="search" placeholder='Pesquise por Nome, Cidade, Estado ou Descrição...' onChange={e => setQuery(e.target.value)}/>
                 <div className='sub-titulo'>
                   <button className='btn btn-success' onClick={()=>joinExitModalPost()}> Incluir Novo </button>
                 </div>
               
-              <div className='container'>
+              
                 <div className='row m-2'>
                   {data.filter(ponto=>{
 
@@ -167,6 +167,15 @@ function App() {
                       return ponto;
                     }
 
+                    if(query === ''){
+
+                      return ponto;
+
+                    } else if (ponto.descricao.toLowerCase().includes(query.toLowerCase())){
+
+                      return ponto;
+                    }
+
                     }).map((ponto, index)=>(
                 <div className="col-sm-6 col-md-4 v my-2" key={index}>                
                   <div className="card-body">
@@ -183,12 +192,12 @@ function App() {
 
                 </div>
               </div>  
-            </div>
+           
         </body>
 
 
 
-        <Modal isOpen={modalPost}>
+        <Modal className='customizar' isOpen={modalPost} size="lg">
           <ModalHeader>CADASTRAR NOVO PONTO TURISTICO</ModalHeader>
 
             <ModalBody>
@@ -204,7 +213,7 @@ function App() {
                     <br/>
                     <input size="20" type="text" className="form-control" name="estado" maxlength="2" onChange={handleChange}/>
                     <br/>
-                   <label>Rua:</label>
+                   <label>Rua ou Referência:</label>
                     <br/>
                     <input type="text" className="form-control" name="ruaReferencia" placeholder="Ex. Rua Euclides 234" onChange={handleChange}/>
                     <br/>   
@@ -221,8 +230,8 @@ function App() {
           </ModalFooter>
         </Modal>
 
-        <Modal isOpen={modalEdit}>
-          <ModalHeader>EDITAR PONTO TURISTICO</ModalHeader>
+        <Modal className='customizar' isOpen={modalEdit} size="lg">
+          <ModalHeader >EDITAR PONTO TURISTICO</ModalHeader>
 
             <ModalBody>
             <div className="form-group">
@@ -246,7 +255,7 @@ function App() {
                     value={pontoSelect && pontoSelect.estado}/>
                       <br/>
 
-              <label>Rua:</label>                  
+              <label>Rua ou Referência:</label>                  
                  <input type="text" className="form-control" name="ruaReferencia" onChange={handleChange}
                     value={pontoSelect && pontoSelect.ruaReferencia}/>
                       <br/>
@@ -264,17 +273,18 @@ function App() {
         </Modal>
 
 
-        <Modal className='detalhes' isOpen={modalDetail}
+        <Modal className='detalhes' isOpen={modalDetail }
         aria-labelledby="contained-modal-title-vcenter" centered>
           <ModalHeader>Detalhes</ModalHeader>
             <ModalBody>
             <div className="form-group">
               <h4>ID: {pontoSelect && pontoSelect.id}</h4>
                 <h1>{pontoSelect && pontoSelect.nome}</h1>
-                  <h3><FaCity/> {pontoSelect && pontoSelect.cidade}</h3>
-                    <h3><FaMapMarkedAlt/> {pontoSelect && pontoSelect.estado}</h3>
+                  <h1><FaCity/> {pontoSelect && pontoSelect.cidade}</h1>
+                    <h1 class="text-uppercase"><FaMapMarkedAlt/> {pontoSelect && pontoSelect.estado}</h1>
                     <a className="linkado" href={`https://www.google.com/maps/search/?api=1&query=${pontoSelect && pontoSelect.ruaReferencia}+${pontoSelect && pontoSelect.cidade}`} target="_blank">
-              <FaMapMarkerAlt/> {pontoSelect && pontoSelect.ruaReferencia}</a>                            
+              <FaMapMarkerAlt/> {pontoSelect && pontoSelect.ruaReferencia}</a>   
+              <h6>{pontoSelect && pontoSelect.descricao}</h6>                         
             </div>                
               </ModalBody>    
               <ModalFooter>
@@ -282,9 +292,9 @@ function App() {
           </ModalFooter>
         </Modal>
 
-        <Modal isOpen={modalDelete}
+        <Modal className='customizar' isOpen={modalDelete}
         aria-labelledby="contained-modal-title-vcenter" centered>
-          <ModalHeader>EXCLUIR PERMANENTEMENTE {pontoSelect && pontoSelect.nome} ?</ModalHeader>  
+          <ModalHeader className='large'>EXCLUIR PERMANENTEMENTE {pontoSelect && pontoSelect.nome} ?</ModalHeader>  
               <ModalFooter>
               <button className="btn btn-primary" onClick={()=>pedidoDelete()}>EXCLUIR</button> {" "}
               <button className="btn btn-danger" onClick={()=>joinExitModalDelete()}>CANCELAR</button>
