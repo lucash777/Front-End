@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import 'bootstrap/dist/css/booststrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import {Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
+import { FaMapMarkerAlt, FaCity, FaMapMarkedAlt} from 'react-icons/fa';
 
 
 function App() {
@@ -20,7 +21,7 @@ function App() {
     nome:'',
     cidade:'',
     estado:'',
-    ruareferencia:'',
+    ruaReferencia:'',
     descricao:''
   });
 
@@ -58,6 +59,11 @@ function App() {
     setModalEdit(!modalEdit);
   }
 
+  const SelectPonto = (ponto, opcao) =>{
+    setPontoSelected(ponto);
+    joinExitModalDetail();
+  }
+
   const handleChange = e=>{
     const {name,value} = e.target;
     setPontoSelected({
@@ -69,17 +75,17 @@ function App() {
   const pedidoGet=async()=>{
     await axios.get(baseUrl)
       .then(response => {
-        setData(reponse.data);
+        setData(response.data);
       }).catch(error=>{
         console.log(error);
       })
   }
 
   const pedidoPost=async()=>{
-    delete setPontoSelected.id;
-    await axios.post(baseUrl, setPontoSelected)
+    delete pontoSelect.id;
+    await axios.post(baseUrl, pontoSelect)
       .then(response => {
-        setData(data.concat(reponse.data));
+        setData(data.concat(response.data));
         joinExitModalPost();
       }).catch(error=>{
         console.log(error);
@@ -87,53 +93,97 @@ function App() {
   }
 
   const pedidoDelete=async()=>{
-    await axios.delete(baseUrl+"/"+pontoSelected.id)
+    await axios.delete(baseUrl+"/"+pontoSelect.id)
     .then (response=>{
-      setData(data.filter(ponto=ponto.id));
+      setData(data.filter(ponto=>ponto.id !== response.data));
       joinExitModalDelete();
     }).catch(error=>{
       console.log(error);
     })
+
   }
 
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
+  const pedidoPut=async()=>{
+    await axios.put(baseUrl+"/"+pontoSelect.id, pontoSelect)
+    .then(response =>{
+      var resposta = response.data;
+      var dadosEdit = data;
+      dadosEdit.map(ponto=>{
+        if(ponto.id === pontoSelect.id){
+        ponto.nome=resposta.nome;
+        ponto.cidade=resposta.cidade;
+        ponto.estado=resposta.estado;
+        ponto.ruaReferencia=resposta.ruaReferencia;
+        ponto.descricao=resposta.descricao;       
+      }
+    });
+    joinExitModalEdit();
+  }).catch(error=>{
+    console.log(error);
+  })
+}
 
 
 
   return (
     <div className="App">
         <body>
-            <h1 className='titulo'>PONTOS TURISTICOS DO BRASIL</h1>
+          <h1 className='titulo'>PONTOS TURISTICOS DO BRASIL</h1>
 
-              <div className="pesquisa">
-                <input type="search" placeholder='Pesquisa por Nome, Cidade ou Estado...' onChange={e => setQuery(e.target.value)}/>
-                  <div className='sub-titulo'>
-                    <button className='btn btn-success' onClick={()=>joinExitModalPost()}> Incluir Novo </button>
+            <div className="pesquisa">
+              <input type="search" placeholder='Pesquisa por Nome, Cidade ou Estado...' onChange={e => setQuery(e.target.value)}/>
+                <div className='sub-titulo'>
+                  <button className='btn btn-success' onClick={()=>joinExitModalPost()}> Incluir Novo </button>
+                </div>
+              
+              <div className='container'>
+                <div className='row m-2'>
+                  {data.filter(ponto=>{
+
+                    if(query === ''){
+
+                      return ponto;
+
+                    } else if (ponto.nome.toLowerCase().includes(query.toLowerCase())){
+
+                      return ponto;
+                    }
+
+                    if(query === ''){
+
+                      return ponto;
+
+                    } else if (ponto.estado.toLowerCase().includes(query.toLowerCase())){
+
+                      return ponto;
+                    }
+
+                    if(query === ''){
+
+                      return ponto;
+
+                    } else if (ponto.cidade.toLowerCase().includes(query.toLowerCase())){
+
+                      return ponto;
+                    }
+
+                    }).map((ponto, index)=>(
+                <div className="col-sm-6 col-md-4 v my-2" key={index}>                
+                  <div className="card-body">
+                    <h3 className="card-title text-uppercase">{ponto.nome}</h3>  
+                      <p>{ponto.descricao}</p>
+                        <p className='botoes'>
+                      <button className="btn btn-primary" onClick={()=>selectPonto(ponto, "Edit")}>Editar</button> {" "}
+                      <button className="btn btn-danger"  onClick={()=>selectPonto(ponto, "Excluir")}>Excluir</button>{" "}
+                      <button className="btn btn-success" onClick={()=>SelectPonto(ponto)}>Detalhes</button>
+                        </p>
                   </div>
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              </div>
+                </div>                                               
+                        ))}
 
+                </div>
+              </div>  
+            </div>
         </body>
 
 
@@ -156,7 +206,7 @@ function App() {
                     <br/>
                    <label>Rua:</label>
                     <br/>
-                    <input type="text" className="form-control" name="ruareferencia" placeholder="Ex. Rua Euclides 234" onChange={handleChange}/>
+                    <input type="text" className="form-control" name="ruaReferencia" placeholder="Ex. Rua Euclides 234" onChange={handleChange}/>
                     <br/>   
                   <label>Descrição:</label>
                     <br/>
@@ -165,59 +215,83 @@ function App() {
               </div>
                 
                 </ModalBody>    
-
               <ModalFooter>
-              <button className="btn btn-primary" onClick={()=>pedidoPost()}>incluir</button> {" "}
+              <button className="btn btn-primary" onClick={()=>pedidoPost()}>Incluir</button> {" "}
               <button className="btn btn-danger" onClick={()=>joinExitModalPost()}>Sair</button>
           </ModalFooter>
-
         </Modal>
 
-        <Modal>
-          <ModalHeader>
+        <Modal isOpen={modalEdit}>
+          <ModalHeader>EDITAR PONTO TURISTICO</ModalHeader>
 
-          </ModalHeader>
-          
             <ModalBody>
-              
-            </ModalBody>
-          
-          <ModalFooter>
+            <div className="form-group">
+              <label>ID:</label>
+                <input type="text" className="form-control"  readOnly 
+                  value={pontoSelect && pontoSelect.id}/>
+                    <br/>            
+                    
+              <label>Nome:</label>                 
+                <input type="text" className="form-control" name="nome" onChange={handleChange}
+                   value={pontoSelect && pontoSelect.nome}/>
+                     <br/>
+                                                       
+              <label>Cidade:</label>                 
+                <input type="text" className="form-control" name="cidade" onChange={handleChange}
+                    value={pontoSelect && pontoSelect.cidade}/>
+                      <br/>
+                                
+              <label>Estado:</label>                  
+                <input type="text" className="form-control" name="estado" onChange={handleChange}
+                    value={pontoSelect && pontoSelect.estado}/>
+                      <br/>
 
+              <label>Rua:</label>                  
+                 <input type="text" className="form-control" name="ruaReferencia" onChange={handleChange}
+                    value={pontoSelect && pontoSelect.ruaReferencia}/>
+                      <br/>
+
+              <label>Descrição:</label>
+                  <textarea maxlength="100" type="text" className="form-control" name="descricao" onChange={handleChange}
+                    value={pontoSelect && pontoSelect.descricao}/>
+                      <br/>
+            </div>              
+                </ModalBody>    
+              <ModalFooter>
+              <button className="btn btn-primary" onClick={()=>pedidoPut()}>CONFIRMAR</button> {" "}
+              <button className="btn btn-danger" onClick={()=>joinExitModalEdit()}>CANCELAR</button>
           </ModalFooter>
         </Modal>
 
 
-        <Modal>
-          <ModalHeader>
-
-          </ModalHeader>
-          
+        <Modal className='detalhes' isOpen={modalDetail}
+        aria-labelledby="contained-modal-title-vcenter" centered>
+          <ModalHeader>Detalhes</ModalHeader>
             <ModalBody>
-              
-            </ModalBody>
-          
-          <ModalFooter>
-
+            <div className="form-group">
+              <h4>ID: {pontoSelect && pontoSelect.id}</h4>
+                <h1>{pontoSelect && pontoSelect.nome}</h1>
+                  <h3><FaCity/> {pontoSelect && pontoSelect.cidade}</h3>
+                    <h3><FaMapMarkedAlt/> {pontoSelect && pontoSelect.estado}</h3>
+                    <a className="linkado" href={`https://www.google.com/maps/search/?api=1&query=${pontoSelect && pontoSelect.ruaReferencia}+${pontoSelect && pontoSelect.cidade}`} target="_blank">
+              <FaMapMarkerAlt/> {pontoSelect && pontoSelect.ruaReferencia}</a>                            
+            </div>                
+              </ModalBody>    
+              <ModalFooter>
+                <button className="btn btn-danger" onClick={()=>joinExitModalDetail()}>SAIR</button>
           </ModalFooter>
         </Modal>
 
-
-        <Modal>
-          <ModalHeader>
-
-          </ModalHeader>
-          
-            <ModalBody>
-              
-            </ModalBody>
-          
-          <ModalFooter>
-
-          </ModalFooter>
+        <Modal isOpen={modalDelete}
+        aria-labelledby="contained-modal-title-vcenter" centered>
+          <ModalHeader>EXCLUIR PERMANENTEMENTE {pontoSelect && pontoSelect.nome} ?</ModalHeader>  
+              <ModalFooter>
+              <button className="btn btn-primary" onClick={()=>pedidoDelete()}>EXCLUIR</button> {" "}
+              <button className="btn btn-danger" onClick={()=>joinExitModalDelete()}>CANCELAR</button>
+              </ModalFooter>
         </Modal>
 
-
+       
 
     </div>
   );
